@@ -2,6 +2,45 @@ import os
 import shutil
 
 from time import sleep
+from distutils.dir_util import copy_tree
+
+def clean_directory_name (id):
+    clean_name = list (id)
+
+    while ('[' in clean_name):
+        start = clean_name.index('[')
+        end = clean_name.index(']') + 1
+
+        for i in range (end - start):
+            del (clean_name[start])
+    
+    if clean_name[0] == " ":
+        del (clean_name[0])
+
+    while clean_name[len(clean_name) - 1] == " ":
+        del (clean_name[len(clean_name) - 1])
+
+    clean_name = "".join(clean_name)
+    return clean_name
+
+def clean_episode_name (id):
+    clean_name = list (id)
+
+    while ('[' in clean_name):
+        start = clean_name.index('[')
+        end = clean_name.index(']') + 1
+
+        for i in range (end - start):
+            del (clean_name[start])
+    
+    if clean_name[0] == " ":
+        del (clean_name[0])
+
+    while clean_name[len(clean_name) - EXTENSION_OFFSET] == " ":
+        del (clean_name[len(clean_name) - EXTENSION_OFFSET])
+
+    clean_name = "".join(clean_name)
+    return clean_name
 
 download_path = 'C:\\Users\\Xavier\\Desktop\\download' 
 series_path = 'C:\\Users\\Xavier\\Documents\\series\\' 
@@ -20,8 +59,28 @@ folder_name = []
 file_size = 0
 
 for name in names:
+    if os.path.isdir (name):
+        copy_path = download_path + path_separator + name 
+        paste_path = series_path + clean_directory_name (name)
 
-    # file_size =  os.path.getsize (download_path + path_separator + name)
+        if not os.path.exists(paste_path):
+            os.mkdir (paste_path)
+        
+        copy_tree (copy_path, paste_path)
+        sleep (2)
+
+        os.chdir (paste_path)
+
+        files =  os.listdir (paste_path)
+
+        for f in files:
+            new_file_name = clean_episode_name (f)
+            os.rename (f, new_file_name)
+
+        shutil.rmtree(copy_path)
+
+        continue
+
     new_name = list (name)
     
     while ('[' in new_name):
@@ -56,29 +115,12 @@ for name in names:
         sleep (5)
 
         os.remove(download_path + path_separator + name)
-
-
     else:
         try:
-            os.mkdir (directory)
+            os.mkdir (directory)    
             newPath = shutil.copy(name, directory + path_separator + episode_name)
             sleep (5)
 
             os.remove(download_path + path_separator + name)
-
-            # copied_file_size = 0
-
-            # print ('starting copy')
-            
-            # seconds = 0
-
-            # while copied_file_size < file_size:
-            #     sleep (2)
-            #     copied_file_size = os.path.getsize (directory + path_separator + episode_name)
-            #     seconds += 2
-            #     print (str(seconds) + "have gone")
-
-            # print ('end copy')
-
         except  OSError:
             print ('Cagacion')
